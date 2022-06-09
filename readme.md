@@ -13,10 +13,10 @@ The code is a heavily modified version of kasada's virtual machine interpreter w
 
 ## Explanation of Trace
 
-**Offset** : Location of specified opcode
-**Decode_Op** : Means the value was retrieved from decoding a part of the opcode
-**Store_Reg** : The register which the value is being stored to
-**Register** : The register that was used to fetch the argument value
+- **Offset** : Location of specified opcode 
+- **Decode_Op** : Means the value was retrieved from decoding a part of the opcode
+- **Store_Reg** : The register which the value is being stored to
+- **Register** : The register that was used to fetch the argument value
 
 ## Usage 
 
