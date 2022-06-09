@@ -235,6 +235,7 @@
      try {
       n(t)
      } catch (n) {
+       
       j(t, n)
      }
     }
@@ -297,7 +298,10 @@
       return arguments
      }.apply(void 0, F(i))];
      for (var o = 0; o < i.length; o++) n.h.push(i[o])
-    } else if (r.toString) n.h[2] = r.apply(t, i);
+    } else if (r.toString) {
+      n.h[2] = r.apply(t, i);
+      console.log(n.h)
+    }
     else {
      var e = !1,
       u = p();

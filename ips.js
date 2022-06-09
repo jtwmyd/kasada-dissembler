@@ -1,26 +1,16 @@
-let debugTracer = false
-class Tracer {
-  constructor() {
-    this.executedInstructions = []
-  }
-
-  _appendInstruction(instr, directedReg, args) {
+function newInstruction(instr, directedReg, args) {
     let instruction = {
       instruction: instr,
       args: args
     }
-    if (debugTracer) {
-      console.log(JSON.stringify(instruction))
-    }
-    this.executedInstructions.push(instruction)
+    return instruction
     
-  }
-
 }
 
 
 (function() {
     function F(n) {
+        
         return o(n) || i(n) || r(n) || t()
     }
 
@@ -105,113 +95,47 @@ class Tracer {
         }), t.IeeaEeuA = void 0;
         var S = i(r(1));
         
-        var tracer = new Tracer()
-
+      
 
         function Vm(injectedFunctions, window, encodedBytecode) {
           
 
-            for (var bytecode = "string" == typeof encodedBytecode ? S.default.e(encodedBytecode) : encodedBytecode, i = bytecode.length, seed = "", e = 0; e < 28; e++) seed += String.fromCharCode(97 + Math.floor(26 * Math.random()));
+            for (var bytecode = "string" == typeof encodedBytecode ? S.default.e(encodedBytecode) : encodedBytecode, seed = "", e = 0; e < 28; e++) seed += String.fromCharCode(97 + Math.floor(26 * Math.random()));
 
             function s(n, t) {
                 for (var r = [], i = 0; i < n; i++) r.push(t(i));
                 return r
             }
-            var l = (f = 0, function(n, t) {
-                    for (var r, i, o = 17 * f++ | 0, e = [], u = 0; u < 3; u++) e.push(u === o % 3 ? n : t());
-                    return r = Math.floor(20 * Math.random()), i = function() {
-                            return o % (this + r)
-                        }.bind(3 - r),
-                        function() {
-                            return e[i()]
-                        }
-                }),
-                f, u = function() {
-                    var n, t, o = (n = 4294967295 * Math.random() | 0, t = 4294967295 * Math.random() | 0, function() {
-                        return (2147483647 & (t = (t >> 16) + (t << 16) + (n = n + 1640531527 | 0) | 0)) / 2147483648
-                    });
-
-                    function e() {
-                        var n = o();
-                        if (n < .29) return o() < .2 ? -Math.floor(Math.exp(2 * o())) : o() < .15 ? 0 : Math.floor(Math.exp(7 * o() * o()));
-                        if (!(n < .32)) {
-                            if (n < .62) {
-                                var t = [u, e, f];
-                                return t[Math.floor(t.length * o())]
-                            }
-                            if (n < .87) {
-                                for (var r = []; o() < .7;) r.push(e());
-                                return r
-                            }
-                            if (n < .97) return o() < .25;
-                            var i = ["create", "offset", "start", "rand", "mv", "xyz", "count"];
-                            return i[Math.floor(i.length * o())]
-                        }
+            var wrapIntoGetFn = function(n) {
+                
+                return i = function() {
+                        
+                        return n
                     }
-
-                    function u() {
-                        for (var n = [], t = Math.floor(Math.exp(4 + 4 * o())), r = 1 + Math.floor(8 * o()), i = 0; i < r; i++) n[t++] = e();
-                        return {
-                            f: void 0,
-                            a: n,
-                            v: translateOpcode,
-                            h: function() {
-                                return [0]
-                            },
-                            $: function() {
-                                return [0]
-                            },
-                            b: function() {}
-                        }
-                    }
-
-                    function f() {
-                        for (var n = 1 + Math.floor(8 * o() * o()), t = Math.max(Math.floor(4 * o()), n), r = []; r.length < t;) r.push(e());
-                        for (var i = [Math.floor((1 + 1e3 * o()) * Math.exp(7 * o())), u(), void 0, function() {
-                                for (var n = arguments.length, t = new Array(n), r = 0; r < n; r++) t[r] = arguments[r];
-                                return arguments
-                            }.apply(void 0, r)]; r.length < n;) r.push(e());
-                        return i.push.apply(i, r), i
-                    }
-                    for (var r = s(20, f), i = function() {
-                            return r[Math.floor(20 * o())]
-                        }, a = function() {
-                            return i()[1]
-                        }, c = 0; c < 20; c++) {
-                        var v = (c + 1) % 20;
-                        r[c][1].h = l(r[v], i), r[c][1].b = l(r[20 - v - 1][1], a)
-                    }
-                    return {
-                        y: a,
-                        M: i
-                    }
-                }(),
-                d = u.y,
-                h = u.M;
+                }
+                
+             
+          
 
             function initVm() {
-                var n = [1, {
+                var vmContext = [1, {
                     f: window,
                     v: null,
                     a: [],
-                    h: function() {
-                        return [0]
-                    },
-                    $: function() {
-                        return [0]
-                    },
+                    h: {},
                     b: function() {}
                 }, void 0];
+             
                 return {
-                    $: h(),
-                    h: n,
+     
+                    h: vmContext,
                     g: void 0
                 }
             }
             0;
             var vmContext = initVm();
 
-            function getOffset(n) {
+            function getRegisterLocation(n) {
                 return bytecode[n.h[0]++] >> 5
             }
             function decodeOpcode(n) {
@@ -306,15 +230,10 @@ class Tracer {
             }
             0;
             var instructions = [];
-            var unseenLocations = []
-
 
             function setValue(n, val) {
-                let location = getOffset(n)
-                if (!unseenLocations.includes(location)) {
-                  
-                  unseenLocations.push(location)
-                }
+                let location = getRegisterLocation(n)
+                
                 n.h[location] = val
 
 
@@ -344,25 +263,44 @@ class Tracer {
             }
 
             function O(n, t) {
-                var r = getRegister$1(n);
-                r.S = {
+                var register = getRegister$1(n);
+                register.S = {
                     w: t
-                }, r.F ? n.h[0] = r.F : (n.h = r.h(), n.$ = h(), n.h[2] = t)
+                }
+                if (register.F) {
+                    // console.log(register.F)
+                    n.h[0] = register.F
+                 } else {
+                    
+
+                    n.h = register.h()
+                    
+                    
+                    n.h[2] = t
+                 } 
             }
 
             function _vmStart(t) {
                 // console.log("_vm_init(): ", t)
-                
+                console.log("_vm_start: offset", t.h[0])
               
                 for (;;) {
-                    let instruction = bytecode[t.h[0]++]
+                    let offset = t.h[0]++
                     
-                    var n = instructions[instruction];
-
-                    if (null === n) break;
+                    let instruction = bytecode[offset]
+                    
+                    var opCodeFunction = instructions[instruction];
+                
+                    if (null === opCodeFunction) {
+                        console.log("break", offset)
+                        break;
+                    }
                     try {
-                        n(t)
+                        opCodeFunction(t)
+
+                        // console.log(instrDetail, instruction)
                     } catch (n) {
+                        exit
                         j(t, n)
                     }
                 }
@@ -373,7 +311,7 @@ class Tracer {
                 
                 var reg = setValue(n, v1.value + v2.value)
 
-                tracer._appendInstruction(`ADD`, reg, [v1, v2])
+                return newInstruction(`ADD`, reg, [v1, v2])
 
 
                 
@@ -383,7 +321,7 @@ class Tracer {
                 // console.log(`SUB ${v1} ${v2}`)
 
                 var reg = setValue(n, v1.value - v2.value)
-                tracer._appendInstruction(`SUB`, reg, [v1, v2])
+                return newInstruction(`SUB`, reg, [v1, v2])
                 
 
             }), instructions.push(function(n) {
@@ -393,7 +331,7 @@ class Tracer {
 
                 var reg = setValue(n, v1.value * v2.value)
 
-                tracer._appendInstruction(`MUL`, reg, [v1, v2])
+                return newInstruction(`MUL`, reg, [v1, v2])
                 
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
@@ -403,7 +341,7 @@ class Tracer {
                 var reg = setValue(n, v1.value / v2.value)
 
 
-                tracer._appendInstruction(`DIV`, reg, [v1, v2])
+                return newInstruction(`DIV`, reg, [v1, v2])
                 
             }), instructions.push(function(n) {
 
@@ -414,21 +352,21 @@ class Tracer {
                 var reg = setValue(n, v1.value % v2.value)
 
 
-                tracer._appendInstruction(`MOD`, reg, [v1, v2])
+                return newInstruction(`MOD`, reg, [v1, v2])
               
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
 
 
                 var reg = setValue(n, !v1.value)
-                tracer._appendInstruction(`NOT`, reg, [v1])
+                return newInstruction(`NOT`, reg, [v1])
                 
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
                 let v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value >> v2.value)
-                tracer._appendInstruction(`SAR`, reg, [v1, v2])
+                return newInstruction(`SAR`, reg, [v1, v2])
                 
 
             }), instructions.push(function(n) {
@@ -436,7 +374,7 @@ class Tracer {
                 let v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value << v2.value)
-                tracer._appendInstruction(`SAL`, reg, [v1, v2])
+                return newInstruction(`SAL`, reg, [v1, v2])
 
                
             }), instructions.push(function(n) {
@@ -444,14 +382,14 @@ class Tracer {
                 let v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value >>> v2.value)
-                tracer._appendInstruction(`USR`, reg, [v1, v2])
+                return newInstruction(`USR`, reg, [v1, v2])
                 
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
                 let v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value | v2.value)
-                tracer._appendInstruction(`BOR`, reg, [v1, v2])
+                return newInstruction(`BOR`, reg, [v1, v2])
 
 
             }), instructions.push(function(n) {
@@ -459,40 +397,40 @@ class Tracer {
                 let v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value & v2.value)
-                tracer._appendInstruction(`BAND`, reg, [v1, v2])
+                return newInstruction(`BAND`, reg, [v1, v2])
 
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
                 let v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value ^ v2.value)
-                tracer._appendInstruction(`XOR`, reg, [v1, v2])
+                return newInstruction(`XOR`, reg, [v1, v2])
 
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
              
 
                 var reg = setValue(n, ~v1.value)
-                tracer._appendInstruction(`NEG`, reg, [v1])
+                return newInstruction(`NEG`, reg, [v1])
 
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
                 
                 var reg = setValue(n, v1.value)
-                tracer._appendInstruction(`MOV`, reg, [v1])
+                return newInstruction(`MOV`, reg, [v1])
 
             }), instructions.push(function(n) {
 
                
                 var reg = setValue(n, window)
-                tracer._appendInstruction(`WIN`, reg, [])
+                return newInstruction(`WIN`, reg, [])
 
             }), instructions.push(function(n) {
                 var v1 = decodeOpcode(n)
                 var v2 = decodeOpcode(n)
 
                 var reg = setValue(n, v1.value[v2.value])
-                tracer._appendInstruction(`ARRAY_ACCESS`, reg, [v1, v2])
+                return newInstruction(`ARRAY_ACCESS`, reg, [v1, v2])
 
             }), instructions.push(function(n) {
 
@@ -502,37 +440,37 @@ class Tracer {
 
                 // var reg = setValue(n, v1.value[v2.value])
                 v1.value[v2.value] = v3.value
-                tracer._appendInstruction(`INSERT_INDEX`, null, [v1, v2, v3])
+                return newInstruction(`INSERT_INDEX`, null, [v1, v2, v3])
 
                 
             }), instructions.push(function(n) {
                 var v1 = decodeOpcode(n)
                 var v2 = decodeOpcode(n)
                 var reg = setValue(n, v1.value in v2.value)
-                tracer._appendInstruction(`EXISTS`, reg, [v1, v2])
+                return newInstruction(`EXISTS`, reg, [v1, v2])
 
             }), instructions.push(function(n) {
                 var v1 = decodeOpcode(n)
                 var v2 = decodeOpcode(n)
                 var reg = setValue(n, delete v1.value[v2.value])
-                tracer._appendInstruction(`DEL`, reg, [v1, v2])
+                return newInstruction(`DEL`, reg, [v1, v2])
 
              
             }), instructions.push(function(n) { 
                 var v1 = decodeOpcode(n)
                 var v2 = decodeOpcode(n)
                 var reg = setValue(n, v1.value instanceof v2.value)
-                tracer._appendInstruction(`INST`, reg, [v1, v2])
+                return newInstruction(`IS_INSTANCE_OF`, reg, [v1, v2])
 
-                // setValue(n, translateOpcode(n) instanceof translateOpcode(n))
+              
             }), instructions.push(function(n) {
 
                 var v1 = decodeOpcode(n)
               
                 var reg = setValue(n, typeof v1.value)
-                tracer._appendInstruction(`TYPEOF`, reg, [v1])
+                return newInstruction(`TYPEOF`, reg, [v1])
                 
-                // setValue(n, typeof translateOpcode(n))
+              
             }), instructions.push(function(n) {
                 
                 var t = decodeOpcode(n)
@@ -541,24 +479,29 @@ class Tracer {
                
                 
                 if (undefined === t.value && isWindowsExplorer() && (t.value = window), r.value[seed] && r.value[seed].A === r.value) {
+                
                     
                     n.h = [r.value[seed]._, {
                         f: t.value,
                         v: r.value,
-                        h: l(n.h, h),
-                        $: l(h(), h),
+                        h: wrapIntoGetFn(n.h),
+                        //$: wrapIntoGetFn(h()),
                         a: [],
                         b: r.value[seed].b
                     }, void 0, function() {
                         return arguments
                     }.apply(void 0, F(i.value))];
+                    
+                
                     for (var o = 0; o < i.value.length; o++) n.h.push(i.value[o])
                     
-                    tracer._appendInstruction(`EXEC_BRANCH`, null, [r.value[seed]._, r.value[seed].b, i.value])
+                    return newInstruction(`EXEC_BRANCH`, null, [r.value[seed]._, r.value[seed].b, i.value])
                 
                 } else if (r.value.toString) {
-                  tracer._appendInstruction(`EXEC_FUNC`, 2, [r.value, t.value, i.value])
                   n.h[2] = r.value.apply(t.value, i.value);
+                  
+                  return newInstruction(`EXEC_FUNC`, 2, [r, t, i])
+                  
                 } else {
                     // seems to never hit this case on chrome
 
@@ -575,150 +518,254 @@ class Tracer {
                 var t = decodeOpcode(n)
                 
                     r = decodeOpcode(n)
-                console.log(t, r)
+                
                 r = r.value.slice();
-                
                 r.unshift(void 0)
+                var reg = setValue(n, new(Function.bind.apply(t.value, r)))
+                return newInstruction(`INIT_FUNC`, reg, [r, t])
                 
-                setValue(n, new(Function.bind.apply(t.value, r)))
+                
+                
 
             }), instructions.push(function(n) {
                 
-                setValue(n, {})
+                var reg = setValue(n, {})
+
+                return newInstruction(`INIT_DICT`, reg, [])
+                
             }), instructions.push(function(n) {
-                setValue(n, [])
+                var reg = setValue(n, [])
+
+                return newInstruction(`INIT_ARR`, reg, [])
+
             }), instructions.push(function(n) {
                 let v1 = decodeOpcode(n)
                 let v2 = decodeOpcode(n)
-
+                
 
                 
-                setValue(n, new RegExp(v1.value,v2.value))
+                var reg = setValue(n, new RegExp(v1.value,v2.value))
+                return newInstruction(`INIT_REGEX`, reg, [v1, v2])
+
+
             }), instructions.push(function(n) {
-                var t = translateOpcode(n),
+
+
+                var v1 = decodeOpcode(n),
                     r = [];
-                for (var i in t) r.push(i);
-                setValue(n, r)
-            }), instructions.push(function(n) {
-                setValue(n, translateOpcode(n) == translateOpcode(n))
-            }), instructions.push(function(n) {
-                setValue(n, translateOpcode(n) === translateOpcode(n))
-            }), instructions.push(function(n) {
-                setValue(n, translateOpcode(n) != translateOpcode(n))
-            }), instructions.push(function(n) {
-                setValue(n, translateOpcode(n) !== translateOpcode(n))
-            }), instructions.push(function(n) {
-                setValue(n, translateOpcode(n) < translateOpcode(n))
-            }), instructions.push(function(n) {
-                var t = translateOpcode(n);
-                setValue(n, translateOpcode(n) < t)
-            }), instructions.push(function(n) {
-                setValue(n, translateOpcode(n) <= translateOpcode(n))
-            }), instructions.push(function(n) {
-                var t = translateOpcode(n);
-                setValue(n, translateOpcode(n) <= t)
-            }), instructions.push(function(n) {
-                let val = translateOpcode(n)
-                // console.log("JMP: ", val)
+                for (var i in v1.value) r.push(i);
+
+                var reg = setValue(n, r)
+                return newInstruction(`COPY_ARR`, reg, [v1])
 
 
-                n.h[0] = val
             }), instructions.push(function(n) {
-                // console.log("JMP COND: ")
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v1.value == v2.value)
 
+                return newInstruction(`EQUAL`, reg, [v1,v2])
 
-                translateOpcode(n) ? translateOpcode(n) : n.h[0] = translateOpcode(n)
+                
             }), instructions.push(function(n) {
-                // console.log("JMP COND: ")
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v1.value === v2.value)
+
+                return newInstruction(`STRICT_EQUAL`, reg, [v1,v2])
+
+            }), instructions.push(function(n) {
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v1.value != v2.value)
+
+                return newInstruction(`NOT_EQUAL`, reg, [v1,v2])
+
+            }), instructions.push(function(n) {
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v1.value !== v2.value)
+
+                return newInstruction(`STRICT_NOT_EQUAL`, reg, [v1,v2])
+
+            }), instructions.push(function(n) {
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v1.value < v2.value)
+
+                return newInstruction(`LESS_THAN`, reg, [v1,v2])
+
+            }), instructions.push(function(n) {
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v2.value < v1.value)
+
+                return newInstruction(`LESS_THAN`, reg, [v2,v1])
+                
+            }), instructions.push(function(n) {
+                
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v1.value <= v2.value)
+
+                return newInstruction(`LESS_THAN_EQUAL`, reg, [v1,v2])
 
 
-                translateOpcode(n) ? n.h[0] = translateOpcode(n) : translateOpcode(n)
+            }), instructions.push(function(n) {
+                var v1 = decodeOpcode(n)
+                var v2 = decodeOpcode(n)
+                var reg = setValue(n, v2.value <= v1.value)
+
+                return newInstruction(`LESS_THAN_EQUAL`, reg, [v2,v1])
+
+
+            }), instructions.push(function(n) {
+                
+
+                var v1 = decodeOpcode(n)
+            
+                
+
+                n.h[0] = v1.value
+                return newInstruction(`JMP`, 0, [v1])
+
+            }), instructions.push(function(n) {
+                var cond = decodeOpcode(n)
+                if (cond.value) {
+                    translateOpcode(n)
+                    return newInstruction(`GOTO_NEXT_INSTRUC`, 0, [])
+                } else {
+                    var location = decodeOpcode(n)
+                    n.h[0] = location.value
+
+                    return newInstruction(`JMP_COND_ELSE`, 0, [cond, location])
+                }
+                
+                
+                
+
+            }), instructions.push(function(n) {
+                
+                var cond = decodeOpcode(n)
+                
+                if (cond.value) {
+                    var location = decodeOpcode(n)
+                    n.h[0] = location.value
+                
+                    return newInstruction(`JMP_COND_IF`, 0, [cond, location])
+                    
+                } else {
+                    translateOpcode(n)
+                    return newInstruction(`GOTO_NEXT_INSTRUC`, 0, [])
+                }
             }), instructions.push(function(n) {
 
-                var t = translateOpcode(n),
-                    r = translateOpcode(n);
-                // console.log(`PUSH LOC: ${t} VAL: ${r}`)
+                var slot = decodeOpcode(n)
+                var val = decodeOpcode(n);
+
+                getRegister$1(n).a[slot.value] = val.value
+                return newInstruction("SET", "1a", [slot, val])
 
 
-                getRegister$1(n).a[t] = r
             }), instructions.push(function(n) {
-                var t = translateOpcode(n),
-                    r = getRegister$1(n),
-                    i = r.v;
-                r.a[t] = i
-            }), instructions.push(function(n) {
-                for (var t = translateOpcode(n), r = translateOpcode(n), i = getRegister$1(n); i; i = i.b()) {
+                var slot = decodeOpcode(n)
+                var register = getRegister$1(n)
+                var vSlot = register.v
+                    
+                   
+                register.a[slot.value] = vSlot
+                return newInstruction("SET", "1a", [slot, vSlot])
 
-                    if (t in i.a) {
-                        i.a[t] = r
-                        return void 0;
+            }), instructions.push(function(n) {
+                
+                for (var slot = decodeOpcode(n), val = decodeOpcode(n), register = getRegister$1(n); register; register = register.b()) {
+                    
+                    if (slot.value in register.a) {
+                        register.a[slot.value] = val.value
+                       
+                        return newInstruction("SET", "1a", [slot, val])
                     }
 
                 }
 
+            }), instructions.push(function(n) {
+                for (var slot = decodeOpcode(n), register = getRegister$1(n); register; register = register.b())
+                    if (slot.value in register.a) {
+                        let val = register.a[slot.value]
+                        var reg = setValue(n, val)
 
-
-                for (var o = m(n); o; o = o.b())
-                    if (t in o.a) return o.a[t] = r, void 0;
+                        
+                        return newInstruction("MOV", reg, [{
+                            label: "register_1a",
+                            value: val,
+                            register: slot
+                          }])
+                    }
                 throw '¯\\_(ツ)_/¯'
+            }), instructions.push(function(n) {
+                var val = n.h[1].f
+                var reg = setValue(n, val)
+
+                return newInstruction("MOV", reg, [{
+                    label: "register_1f",
+                    value: val,
+                  }])
 
             }), instructions.push(function(n) {
-                for (var t = translateOpcode(n), r = getRegister$1(n); r; r = r.b())
-                    if (t in r.a) return setValue(n, r.a[t]), void 0;
-                throw '¯\\_(ツ)_/¯'
-            }), instructions.push(function(n) {
-                setValue(n, n.h[1].f)
-            }), instructions.push(function(n) {
+                // Not needed?
                 j(n, translateOpcode(n))
             }), instructions.push(function(n) {
-                O(n, translateOpcode(n))
+                var val = decodeOpcode(n)
+                // console.log(val)
+                O(n, val.value)
             }), instructions.push(function(n) {
 
                 
-                var r = translateOpcode(n),
+                var startOffset = translateOpcode(n),
                     t = translateOpcode(n),
                     i = translateOpcode(n),
                     o = getRegister$1(n),
-                    e = function() {
-                        var n = initVm();
-                        n.h[3] = arguments;
-                        for (var t = 0; t < arguments.length; t++) n.h[t + 4] = arguments[t];
+                    newBranchFunction = function() {
+                        var vmContext = initVm();
+                        vmContext.h[3] = arguments;
+                        
+                        for (var t = 0; t < arguments.length; t++) vmContext.h[t + 4] = arguments[t];
 
                         
-                        n.h[1] = {
+                        vmContext.h[1] = {
                             f: this,
                             h: function() {
                                 return [0]
                             },
-                            $: function() {
-                                return [0]
-                            },
                             a: [],
-                            b: l(o, d),
-                            v: e
+                            b: wrapIntoGetFn(o),
+                            v: newBranchFunction
                         }
-                        n.h[0] = r
-                        _vmStart(n)
-                        return n.h[2]
+                        vmContext.h[0] = startOffset
+                        _vmStart(vmContext)
+                        let retVal = vmContext.h[2]
+                        
+                        return retVal
                     };
 
                 try {
                     
-                    Object.defineProperty(e, "length", {
+                    Object.defineProperty(newBranchFunction, "length", {
                         value: i
-                    }), Object.defineProperty(e, "name", {
+                    }), Object.defineProperty(newBranchFunction, "name", {
                         value: t
                     })
                 } catch (n) {
                     for (var u = !1, f = "", a = 0; a < i; a++) u ? f += ",a".concat(a) : (f += "a".concat(a), u = !0);
-                    e = eval("(function(fn){" + "return function ".concat(t, "(").concat(f, "){return fn.apply(this, arguments)}") + "})")(e)
+                    newBranchFunction = eval("(function(fn){" + "return function ".concat(t, "(").concat(f, "){return fn.apply(this, arguments)}") + "})")(newBranchFunction)
                 }
-                e[seed] = {
-                    _: r,
-                    b: l(o, d),
-                    A: e
-                } 
-                setValue(n, e)
+                newBranchFunction[seed] = {
+                    _: startOffset,
+                    b: wrapIntoGetFn(o),
+                    A: newBranchFunction
+                }
+
+                setValue(n, newBranchFunction)
             }), instructions.push(function(n) {
                 var t = translateOpcode(n);
                 n.h[1].O = t
@@ -730,7 +777,9 @@ class Tracer {
             }), instructions.push(function(n) {
                 n.g = void 0
             }), instructions.push(function(n) {
-                if (n.g) j(n, n.g.w);
+                if (n.g) {
+                    j(n, n.g.w);
+                }
                 else {
                     var t = getRegister$1(n);
                     t.S && O(n, t.S.w)
