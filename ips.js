@@ -155,7 +155,7 @@ let execStack = [];
                 
                   return {
                     label: "fetch_register",
-                    // value: value,
+                    value: value,
                     register: register
                   }
                 }
@@ -284,6 +284,9 @@ let execStack = [];
             }
 
             function _vmStart(t) {
+                // console.log("_vm_init(): ", t)
+                // console.log("_vm_start: offset", t.h[0])
+              
                 
                 for (;;) {
                     let offset = t.h[0]++
