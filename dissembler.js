@@ -525,7 +525,7 @@ let execStack = [];
  
 
                   // not sure what to do here?
-                  return newInstruction(`EXEC_FUNC`, 2, [r, t, i])
+                  return newInstruction(`EXEC_FUNC`, "2", [r, t, i])
                   
                 } else {
                     // seems to never hit this case on chrome
@@ -652,18 +652,18 @@ let execStack = [];
                 
 
                 n.h[0] = v1.value
-                return newInstruction(`JMP`, 0, [v1])
+                return newInstruction(`JMP`, null, [v1])
 
             }), instructions.push(function(n) {
                 var cond = decodeOpcode(n)
                 if (cond.value) {
                     translateOpcode(n)
-                    return newInstruction(`GOTO_NEXT_INSTRUC`, 0, [])
+                    return newInstruction(`GOTO_NEXT_INSTRUC`, null, [])
                 } else {
                     var location = decodeOpcode(n)
                     n.h[0] = location.value
 
-                    return newInstruction(`JMP_COND_ELSE`, 0, [cond, location])
+                    return newInstruction(`JMP_COND_ELSE`, null, [cond, location])
                 }
                 
                 
@@ -677,11 +677,11 @@ let execStack = [];
                     var location = decodeOpcode(n)
                     n.h[0] = location.value
                 
-                    return newInstruction(`JMP_COND_IF`, 0, [cond, location])
+                    return newInstruction(`JMP_COND_IF`, "0", [cond, location])
                     
                 } else {
                     translateOpcode(n)
-                    return newInstruction(`GOTO_NEXT_INSTRUC`, 0, [])
+                    return newInstruction(`GOTO_NEXT_INSTRUC`, "0", [])
                 }
             }), instructions.push(function(n) {
 
@@ -700,7 +700,8 @@ let execStack = [];
                    
                 register.a[slot.value] = vSlot
                 return newInstruction("SET", "1a", [slot, {
-                    label: "register_1a",
+                    label: "fetch_register",
+                    register: "1av",
                     slot: slot.value
                   }])
 
@@ -724,7 +725,8 @@ let execStack = [];
 
                         
                         return newInstruction("SET", reg, [{
-                            label: "register_1a",
+                            label: "fetch_register",
+                            register: "1a",
                             slot: slot.value
                           }])
                     }
@@ -734,7 +736,8 @@ let execStack = [];
                 var reg = setValue(n, val)
 
                 return newInstruction("MOV", reg, [{
-                    label: "register_1f",
+                    label: "fetch_register",
+                    register: "1f",
                   }])
 
             }), instructions.push(function(n) {
