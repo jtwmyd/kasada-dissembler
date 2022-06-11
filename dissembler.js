@@ -170,7 +170,7 @@ let execStack = [];
                   return {
                     label: "fetch_register",
                     value: value,
-                    register: register
+                    register: `${register}`
                   }
                 }
                 // if header is odd
@@ -1459,4 +1459,4 @@ function download(text, name) {
     a.click();
     a.remove();
   }
-  download(JSON.stringify(execStack.splice(0, 2500000)))
+  download(JSON.stringify(execStack.splice(0, 5000)))
